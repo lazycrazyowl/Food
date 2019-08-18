@@ -22,22 +22,28 @@ dish_names <- urls_level1 %>%
   map(html_attr,"title") %>%
   unlist()
 
-ingredients1 <- urls_level2 %>%
+ingredients_long_list <- urls_level2 %>%
   map(read_html) %>%
   map(html_nodes,"dd") %>%
   map(html_text) %>%
-  map(str_replace_all, "[^[:alpha:]]", " ") %>%
-  map(str_replace_all,"[ ]+", " ") %>%
+  map(str_replace_all, "[^[:alpha:]]", " ") %>% # keep words
+  map(str_replace_all,"[ ]+", " ") %>% # remove long spaces
   map(str_remove_all," g ") %>%
   map(str_remove_all, " q b ") %>%
   map(str_remove_all, " kg") %>%
-  #consider keeping only first word
-  map(str_trim) %>%
-  unlist()
+  map(str_trim) #%>%
+  #unlist()
 
-ingredients2 <- ingredients1 %>%
-  str_extract("([[:alpha:]]+)")
-  
-ingredients %>% tibble() %>% group_by(factor(.)) %>% count() %>% arrange(desc(n))
+ingredients_short_list <- ingredients1 %>%
+  map(str_extract,"([[:alpha:]]+)")
+
+ingredients_long <- ingredients_long_list %>% map(paste0, collapse=", ") %>% unlist()
+ingredients_short <- ingredients_short_list %>% map(paste0, collapse=", ") %>% unlist()
+
+df <- tibble(dish_names,ingredients_long,ingredients_short)
+
+write_csv(df,"ingredients.csv")
+
+#ingredients %>% tibble() %>% group_by(factor(.)) %>% count() %>% arrange(desc(n))
 
 
