@@ -84,3 +84,24 @@ pair_cor %>%
                  point.padding = unit(0.2, "lines")) +
   theme_void() +
   theme(legend.position = "none")
+
+L <- ingredients_short_list
+W <- unique(unlist(L))
+W <- str_remove_all(W,"Olio|Sale|Pepe")
+X <- matrix(0,length(W),length(W))
+
+for (i in 1:length(L)) {
+  for (j in 2:length(L[[i]])) {
+    ix = which(W==L[[i]][j-1])
+    jx <- which(W==L[[i]][j])
+    X[ix,jx] <- X[ix,jx]+1
+    X[jx,ix] <- X[jx,ix]+1
+  }
+}
+
+colnames(X) <- rownames(X) <- W
+SVD <- svd(X)
+plot(SVD$u[,1],SVD$u[,2])
+text(SVD$u[,1],SVD$u[,2],labels = W)  
+  
+  
