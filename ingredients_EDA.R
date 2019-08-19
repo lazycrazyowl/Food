@@ -49,3 +49,38 @@ pair_count %>%
                  point.padding = unit(0.2, "lines")) +
   theme_void() +
   theme(legend.position = "none")
+
+# correlation
+pair_cor <- df %>% 
+  unnest_tokens(word,ingredients_short) %>%
+  filter(!word %in% c("sale","olio","pepe")) %>%
+  add_count(word) %>%
+  filter(n > 2) %>%
+  pairwise_cor(word,dish_names) %>%
+  mutate(pair = glue::glue("{item1}, {item2}"))
+
+pair_cor$pair <- pair_cor$pair %>%
+  str_split(", ") %>% 
+  map(sort) %>%
+  map(paste0,collapse=", ") %>% unlist()
+
+pair_cor <- pair_cor %>%
+  arrange(desc(correlation)) %>%
+  distinct(pair,.keep_all = T) %>%
+  mutate(row = rev(row_number()))
+
+pair_cor_25 <- pair_cor %>%
+  top_n(25,correlation) 
+
+pair_cor_25
+
+pair_cor %>%
+  select(item1,item2,correlation) %>%  filter(correlation > .2)  %>%
+  graph_from_data_frame() %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = correlation, edge_width = correlation), edge_colour = "darkred") +
+  geom_node_point(size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE,
+                 point.padding = unit(0.2, "lines")) +
+  theme_void() +
+  theme(legend.position = "none")
