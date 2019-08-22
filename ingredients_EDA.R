@@ -3,16 +3,19 @@
 library(tidyverse)
 library(tidytext)
 library(widyr)
+library(igraph)
+library(ggraph)
 
 df <- read_csv("ingredients.csv")
 
-df %>% unnest_tokens(word,ingredients_short) %>%
+df %>% 
+  unnest_tokens(word,ingredients_short) %>%
   count(word) %>%
   arrange(desc(n))
 
 pair_count <- df %>% 
   unnest_tokens(word,ingredients_short) %>%
-  filter(!word %in% c("sale","olio","pepe")) %>%
+  #filter(!word %in% c("sale","olio","pepe")) %>%
   pairwise_count(word,dish_names) %>%
   mutate(pair = glue::glue("{item1}, {item2}"))
   
@@ -53,7 +56,7 @@ pair_count %>%
 # correlation
 pair_cor <- df %>% 
   unnest_tokens(word,ingredients_short) %>%
-  filter(!word %in% c("sale","olio","pepe")) %>%
+ # filter(!word %in% c("sale","olio","pepe")) %>%
   add_count(word) %>%
   filter(n > 2) %>%
   pairwise_cor(word,dish_names) %>%
@@ -101,7 +104,10 @@ for (i in 1:length(L)) {
 
 colnames(X) <- rownames(X) <- W
 SVD <- svd(X)
-plot(SVD$u[,1],SVD$u[,2])
+
+plot(SVD$u[,1],SVD$u[,2],type = "none")
 text(SVD$u[,1],SVD$u[,2],labels = W)  
   
+ggplot(as.data.frame(SVD$u),aes(SVD$u[,1],SVD$u[,2])) + geom_()
+
   
