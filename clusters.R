@@ -61,3 +61,9 @@ db <- fpc::dbscan(df_scaled, eps = 7, MinPts = 5)
 #plot(db, df_scaled, main = "DBSCAN", frame = FALSE)
 
 fviz_cluster(db, df_scaled, stand = FALSE, geom = "point")
+
+### distance matrix
+
+df_dist <- get_dist(df_scaled, stand = TRUE, method = "pearson")
+fviz_dist(df_dist,gradient = list(low = "steelblue", mid = "white", high = "indianred"),show_labels =F) +
+  theme_minimal()
