@@ -8,14 +8,13 @@ library(ggraph)
 
 df <- read_csv("ingredients.csv")
 
-df %>% 
-  unnest_tokens(word,ingredients_short) %>%
+df %>% unnest_tokens(word,ingredients_short) %>%
   count(word) %>%
   arrange(desc(n))
 
 pair_count <- df %>% 
   unnest_tokens(word,ingredients_short) %>%
-  #filter(!word %in% c("sale","olio","pepe")) %>%
+  filter(!word %in% c("sale","olio","pepe")) %>%
   pairwise_count(word,dish_names) %>%
   mutate(pair = glue::glue("{item1}, {item2}"))
   
@@ -56,9 +55,9 @@ pair_count %>%
 # correlation
 pair_cor <- df %>% 
   unnest_tokens(word,ingredients_short) %>%
- # filter(!word %in% c("sale","olio","pepe")) %>%
+  filter(!word %in% c("sale","olio","pepe")) %>%
   add_count(word) %>%
-  filter(n > 2) %>%
+  filter(n > 3) %>%
   pairwise_cor(word,dish_names) %>%
   mutate(pair = glue::glue("{item1}, {item2}"))
 
